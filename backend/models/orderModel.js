@@ -18,12 +18,12 @@ const orderSchema = mongoose.Schema(
           required: true,
         },
         image: {
-          type: Number,
-          price: true,
+          type: String,
+          required: true,
         },
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          price: true,
+          required: true,
           ref: "Product",
         },
       },
@@ -43,7 +43,7 @@ const orderSchema = mongoose.Schema(
       },
       country: { type: String, required: true },
     },
-    PaymentMethod: {
+    paymentMethod: {
       type: String,
       required: true,
     },
