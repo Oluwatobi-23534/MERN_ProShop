@@ -26,8 +26,14 @@ const orderSchema = mongoose.Schema(
           required: true,
           ref: "Product",
         },
+        price: {
+          // Adding the price field
+          type: Number,
+          required: true,
+        },
       },
     ],
+
     shippingAddress: {
       address: {
         type: String,
