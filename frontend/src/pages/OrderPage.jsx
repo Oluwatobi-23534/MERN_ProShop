@@ -4,7 +4,7 @@ import {
   Col,
   ListGroup,
   Image,
-  Form,
+
   Button,
   Card,
 } from "react-bootstrap";
@@ -15,6 +15,7 @@ import {
   useGetOrderDetailsQuery,
   usePayOrderMutation,
   useGetPayPalClientIdQuery,
+  useDeliverOrderMutation,
 } from "../slices/ordersApiSlice";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -34,6 +35,9 @@ const OrderPage = () => {
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
 
+  const [deliverOrder, { isLoading: loadingDeliver }] =
+    useDeliverOrderMutation();
+
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
   const {
@@ -50,7 +54,7 @@ const OrderPage = () => {
         paypalDispatch({
           type: "resetOptions",
           value: {
-            'client-id': paypal.clientId,
+            "client-id": paypal.clientId,
             currency: "USD",
           },
         });
@@ -100,6 +104,16 @@ const OrderPage = () => {
         return orderId;
       });
   }
+
+  const deliverOrderHandler = async () => {
+    try {
+      await deliverOrder(orderId);
+      refetch();
+      toast.success("Order delivered");
+    } catch (err) {
+      toast.error(err?.data?.message || err.message);
+    }
+  };
 
   return isLoading ? (
     <Loader />
@@ -170,42 +184,39 @@ const OrderPage = () => {
           </ListGroup>
         </Col>
         <Col md={4}>
-          <Card>
-            <ListGroup.Item>
-              <h2>Order Summary</h2>
+          <Card className="space-y-4">
+            <ListGroup.Item className="py-2">
+              <h2 className="font-bold text-xl">Order Summary</h2>
             </ListGroup.Item>
 
-            <ListGroup.Item>
-              <Row>
-                <Col>Items</Col>
-                <Col>${order.itemsPrice}</Col>
+            <ListGroup.Item className="py-2">
+              <Row className="space-y-2">
+                <Col className="py-1">Items</Col>
+                <Col className="py-1">${order.itemsPrice}</Col>
               </Row>
-              <Row>
-                <Col>Shipping</Col>
-                <Col>${order.shippingPrice}</Col>
+              <Row className="space-y-2">
+                <Col className="py-1">Shipping</Col>
+                <Col className="py-1">${order.shippingPrice}</Col>
               </Row>
-              <Row>
-                <Col>Tax</Col>
-                <Col>${order.taxPrice}</Col>
+              <Row className="space-y-2">
+                <Col className="py-1">Tax</Col>
+                <Col className="py-1">${order.taxPrice}</Col>
               </Row>
-              <Row>
-                <Col>Total</Col>
-                <Col>${order.totalPrice}</Col>
+              <Row className="space-y-2">
+                <Col className="py-1">Total</Col>
+                <Col className="py-1">${order.totalPrice}</Col>
               </Row>
             </ListGroup.Item>
 
             {!order.isPaid && (
-              <ListGroup.Item>
+              <ListGroup.Item className="py-2 space-y-2">
                 {loadingPay && <Loader />}
 
                 {isPending ? (
                   <Loader />
                 ) : (
-                  <div>
-                    <Button
-                      onClick={onApproveTest}
-                      style={{ marginBottom: "10px" }}
-                    >
+                  <div className="space-y-2">
+                    <Button onClick={onApproveTest} className="mb-2">
                       Test Pay Order
                     </Button>
                     <div>
@@ -219,7 +230,22 @@ const OrderPage = () => {
                 )}
               </ListGroup.Item>
             )}
-            {/* Mark As Delivered Placeholder */}
+
+            {loadingDeliver && <Loader />}
+            {userInfo &&
+              userInfo.isAdmin &&
+              order.isPaid &&
+              !order.isDelivered && (
+                <ListGroup.Item className="py-2">
+                  <Button
+                    type="button"
+                    className="btn btn-block"
+                    onClick={deliverOrderHandler}
+                  >
+                    Mark As Delivered
+                  </Button>
+                </ListGroup.Item>
+              )}
           </Card>
         </Col>
       </Row>
