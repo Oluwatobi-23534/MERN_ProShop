@@ -68,17 +68,19 @@ const OrderPage = () => {
     }
   }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal]);
 
-  function onApprove() {
-    return actions.order.capture().then(async function (details) {
-      try {
-        await payOrder({ orderId, details });
-        refetch();
-        toast.success("Payment successful");
-      } catch (err) {
-        toast.error(err?.data?.message || err.message);
-      }
-    });
-  }
+ function onApprove(data, actions) {
+   return actions.order.capture().then(async function (details) {
+     try {
+       await payOrder({ orderId, details });
+       refetch();
+       toast.success("Payment successful");
+     } catch (err) {
+       toast.error(err?.data?.message || err.message);
+     }
+   });
+ }
+
+
 
   async function onApproveTest() {
     await payOrder({ orderId, details: { payer: {} } });
